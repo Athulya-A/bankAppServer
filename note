@@ -11,8 +11,12 @@
 
                                 4. To install nodemon - npm i -g nodemon 
 
+                                5. Install jsonwebtoken - npm i jsonwebtoken
+
+
 
                                     Steps - Server Creation 
+
 
 
                                 1. Create folder for Server
@@ -34,5 +38,15 @@
                                 9. Run server
 
                                 10. Parse json data in index.js
-                                
-                                
+
+                                11. MiddleWares - (req,res,next)=>{}
+
+                                    11.1 Application specific Middlewares
+
+                                    11.2 Router specific Middlewares
+
+                                12. JWT Token - To authenticate user - 
+
+                                    12.1 Token generation - sign()
+
+                                    12.2 Token Validation - verify()

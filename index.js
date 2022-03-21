@@ -4,8 +4,9 @@ const express = require('express')
 const req = require('express/lib/request')
 const res = require('express/lib/response')
 const dataService = require('./services/data.service')
+const jwt = require('jsonwebtoken')
 
-// create an app using express
+// create an server app using express
 
 const app = express()
 
@@ -40,26 +41,66 @@ app.delete('/', (req, res) => {
     res.send("IT'S A DELETE METHOD")
 })
 
+//Application specific Middleware
+
+const appMiddleware = (req,res,next)=>{
+    console.log("Application specific middleware")
+    next()
+}
+app.use(appMiddleware)
+
 //bank app - API
+
+
+// to verify token - middleware
+
+const jwtMiddleware = (req, res, next) => {
+    try {
+        const token = req.headers["x-access-token"]
+        // verify token
+
+        const data = jwt.verify(token, 'supersecretkey123')
+        req.currentAcno = data.currentAcno
+        next()
+    }
+    catch {
+        res.status(422).json({
+            statusCode: 422,
+            status: false,
+            message: "Please Log In"
+        })
+    }
+}
 
 // register API
 app.post('/register', (req, res) => {
-    const result = dataService.register(req.body.acno,req.body.password,req.body.uname)
+    const result = dataService.register(req.body.acno, req.body.password, req.body.uname)
     res.status(result.statusCode).json(result)
 })
 
 // login API
 app.post('/login', (req, res) => {
-    const result = dataService.login(req.body.acno,req.body.password)
+    const result = dataService.login(req.body.acno, req.body.password)
     res.status(result.statusCode).json(result)
 })
 
 // deposit API
-app.post('/deposit', (req, res) => {
-    const result = dataService.deposit(req.body.acno,req.body.password,req.body.amt)
+app.post('/deposit',jwtMiddleware, (req, res) => {
+    const result = dataService.deposit(req.body.acno, req.body.password, req.body.amt)
     res.status(result.statusCode).json(result)
 })
 
+// withdraw API
+app.post('/withdraw',jwtMiddleware, (req, res) => {
+    const result = dataService.withdraw(req,req.body.acno, req.body.password, req.body.amt)
+    res.status(result.statusCode).json(result)
+})
+
+// transaction API
+app.post('/transaction', (req, res) => {
+    const result = dataService.getTransaction(req.body.acno)
+    res.status(result.statusCode).json(result)
+})
 
 // Set up the port number
 app.listen(3000, () => {
